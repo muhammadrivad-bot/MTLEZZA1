@@ -171,6 +171,34 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
   color: var(--text);
 }
 
+/* ---------- Page navigation ---------- */
+.page-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 5px;
+  margin-bottom: 18px;
+  border: 1px solid #cddcf5;
+  border-radius: 999px;
+  background: #eef4ff;
+}
+.page-tab {
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 18px;
+  background: transparent;
+  color: #244c91;
+  font-size: 12.5px;
+  font-weight: 650;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+.page-tab:hover { color: #0d2c66; background: #e0ebff; }
+.page-tab.active {
+  color: #ffffff;
+  background: #143a7d;
+  box-shadow: 0 6px 16px rgba(20, 58, 125, 0.25);
+}
+
 .alert {
   margin-bottom: 18px;
   padding: 12px 16px;
@@ -498,6 +526,57 @@ tr.expanded .chevron { transform: rotate(90deg); color: var(--accent-bright); }
 .chart-ach.none { color: var(--muted-2); }
 
 /* ---------- Footer ---------- */
+/* ---------- SKU page ---------- */
+.sku-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.85fr);
+  gap: 16px;
+  align-items: start;
+}
+.sku-table td:first-child { max-width: 420px; overflow-wrap: anywhere; }
+.sku-share {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  justify-content: flex-end;
+}
+.sku-share-track {
+  width: 90px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.sku-share-fill { height: 100%; border-radius: inherit; background: var(--accent-bright); }
+.pie-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 18px 18px 6px;
+}
+.pie-wrap canvas {
+  width: 100%;
+  max-width: 340px;
+  height: 300px;
+}
+.pie-legend {
+  display: grid;
+  gap: 7px;
+  padding: 8px 18px 20px;
+  font-size: 11.5px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+.pie-legend-row {
+  display: grid;
+  grid-template-columns: 11px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  color: var(--text);
+}
+.pie-legend-name { overflow-wrap: anywhere; }
+.pie-legend-value { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pie-legend-swatch { width: 10px; height: 10px; border-radius: 3px; }
+
 .footer { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 6px 4px 0; color: #5a76a8; font-size: 11px; }
 
 /* ---------- Modal ---------- */
@@ -534,6 +613,7 @@ tr.expanded .chevron { transform: rotate(90deg); color: var(--accent-bright); }
   .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .main-grid { grid-template-columns: 1fr; }
   .side-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sku-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 760px) {
@@ -574,8 +654,14 @@ tr.expanded .chevron { transform: rotate(90deg); color: var(--accent-bright); }
       </div>
     </header>
 
+    <nav class="page-tabs" aria-label="Navigasi halaman">
+      <button class="page-tab active" type="button" data-page="group">Customer Group</button>
+      <button class="page-tab" type="button" data-page="sku">Performa by SKU</button>
+    </nav>
+
     <div class="alert hidden" id="alertBox" role="status"></div>
 
+    <div id="pageGroup" class="page">
     <section class="kpi-grid" aria-label="Ringkasan performa">
       <article class="card kpi kpi-highlight">
         <div class="kpi-top">
@@ -740,9 +826,69 @@ tr.expanded .chevron { transform: rotate(90deg); color: var(--accent-bright); }
       </div>
       <div id="chartRows" class="chart-rows"></div>
     </section>
+    </div>
+
+    <div id="pageSku" class="page hidden">
+      <section class="card filter-card">
+        <div class="filter-row">
+          <label class="field">
+            <span class="field-label">Customer Group</span>
+            <select id="skuGroupFilter"><option value="ALL">Semua Customer Group</option></select>
+          </label>
+          <label class="field field-search">
+            <span class="field-label">Cari SKU Name</span>
+            <input id="skuSearch" type="search" placeholder="Contoh: Chicken Pok Pok, Cheese Sausage..." autocomplete="off">
+          </label>
+          <label class="field">
+            <span class="field-label">Urutkan</span>
+            <select id="skuSort">
+              <option value="nov:desc">Omzet Nov · terbesar</option>
+              <option value="nov:asc">Omzet Nov · terkecil</option>
+              <option value="sku:asc">SKU Name · A–Z</option>
+              <option value="sku:desc">SKU Name · Z–A</option>
+            </select>
+          </label>
+          <button class="btn btn-quiet" id="skuResetBtn" type="button">Reset</button>
+        </div>
+        <div class="filter-meta" id="skuMeta">Memuat data SKU…</div>
+      </section>
+
+      <div class="sku-grid">
+        <div class="card table-card">
+          <div class="card-head">
+            <div>
+              <h2>Performa SKU · Omzet November 2026</h2>
+              <p id="skuTableNote">Berdasarkan sheet “By SKU”.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table sku-table" id="skuTable">
+              <thead>
+                <tr>
+                  <th>SKU Name</th>
+                  <th class="num">Omzet November</th>
+                  <th class="num">Kontribusi</th>
+                </tr>
+              </thead>
+              <tbody id="skuTableBody">
+                <tr><td colspan="3" class="empty-state">Memuat data SKU…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <aside class="card side-card sku-chart-card">
+          <div class="card-head compact">
+            <div><h2>Kontribusi per SKU</h2><p id="skuChartNote">Persentase omzet November 2026</p></div>
+          </div>
+          <div class="pie-wrap"><canvas id="skuPie" role="img" aria-label="Pie chart kontribusi omzet November per SKU"></canvas></div>
+          <div id="skuLegend" class="pie-legend"></div>
+        </aside>
+      </div>
+    </div>
 
     <footer class="footer">
-      <span>Sumber: Google Sheets · “Monitoring MT” &amp; “Promo” · live update tiap 30 detik.</span>
+      <span>Sumber: Google Sheets · “Monitoring MT”, “Promo”, &amp; “By SKU” · live update tiap 30 detik.</span>
       <span id="fetchedAt">—</span>
     </footer>
   </div>
@@ -785,6 +931,12 @@ const state = {
   expanded: new Set(),
   detailViews: {},
   loading: false,
+  page: "group",
+  sku: null,
+  skuGroup: "ALL",
+  skuSearch: "",
+  skuSort: "nov:desc",
+  skuLoading: false,
 };
 
 const STATUS_LABEL = {
@@ -1122,6 +1274,165 @@ function renderChart(groups) {
     .join("");
 }
 
+/* -------------------------------------------------------------------------
+   SKU page
+   ------------------------------------------------------------------------- */
+const SKU_COLORS = [
+  "#63a4ff", "#35d2a0", "#f6c453", "#ff7b85", "#9b8cff",
+  "#4fd0e0", "#ff9f68", "#7ed957", "#ff6fb5", "#5c8dff",
+  "#d4a5ff", "#8de0a8",
+];
+
+function compactMoney(value) {
+  const absolute = Math.abs(value || 0);
+  if (absolute >= 1e9) return `${(value / 1e9).toFixed(2).replace(".", ",")} M`;
+  if (absolute >= 1e6) return `${(value / 1e6).toFixed(1).replace(".", ",")} Jt`;
+  if (absolute >= 1e3) return `${(value / 1e3).toFixed(0)} Rb`;
+  return money(value);
+}
+
+function currentSkuItems() {
+  if (!state.sku) return [];
+  const query = state.skuSearch.trim().toLowerCase();
+  const totals = new Map();
+  for (const row of state.sku.rows) {
+    if (state.skuGroup !== "ALL" && row.group !== state.skuGroup) continue;
+    if (query && !row.sku.toLowerCase().includes(query)) continue;
+    totals.set(row.sku, (totals.get(row.sku) || 0) + row.nov);
+  }
+
+  const items = Array.from(totals, ([sku, nov]) => ({ sku, nov }));
+  const [key, direction] = state.skuSort.split(":");
+  items.sort((a, b) => {
+    const result = key === "sku"
+      ? a.sku.localeCompare(b.sku)
+      : a.nov - b.nov;
+    return direction === "asc" ? result : -result;
+  });
+  return items;
+}
+
+function renderSkuTable(items, total) {
+  const maxShare = Math.max(1, ...items.map((item) => total ? item.nov / total : 0));
+  $("skuTableBody").innerHTML = items.length
+    ? items
+        .map((item) => {
+          const share = total ? item.nov / total : 0;
+          const width = share / maxShare * 100;
+          return `<tr>
+            <td>${esc(item.sku)}</td>
+            <td class="num">${money(item.nov)}</td>
+            <td class="num"><span class="sku-share">
+              <span class="sku-share-track"><span class="sku-share-fill" style="width:${width}%"></span></span>
+              <b>${(share * 100).toFixed(1)}%</b>
+            </span></td>
+          </tr>`;
+        })
+        .join("")
+    : '<tr><td colspan="3" class="empty-state">Tidak ada SKU yang sesuai filter.</td></tr>';
+}
+
+function renderSkuPie(items) {
+  const canvas = $("skuPie");
+  const total = items.reduce((sum, item) => sum + item.nov, 0);
+  if (!total) {
+    const context = canvas.getContext("2d");
+    if (canvas.width && canvas.height) context.clearRect(0, 0, canvas.width, canvas.height);
+    $("skuLegend").innerHTML = '<div class="promo-empty">Tidak ada data untuk ditampilkan.</div>';
+    return;
+  }
+
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = Math.round(rect.width * ratio);
+  canvas.height = Math.round(rect.height * ratio);
+  const context = canvas.getContext("2d");
+  context.setTransform(ratio, 0, 0, ratio, 0, 0);
+  context.clearRect(0, 0, rect.width, rect.height);
+
+  const centerX = rect.width / 2;
+  const centerY = rect.height / 2;
+  const radius = Math.min(rect.width, rect.height) / 2 - 14;
+  const inner = radius * 0.57;
+  let angle = -Math.PI / 2;
+
+  items.forEach((item, index) => {
+    const slice = item.nov / total * Math.PI * 2;
+    context.beginPath();
+    context.moveTo(centerX, centerY);
+    context.arc(centerX, centerY, radius, angle, angle + slice);
+    context.closePath();
+    context.fillStyle = SKU_COLORS[index % SKU_COLORS.length];
+    context.fill();
+    angle += slice;
+  });
+
+  context.globalCompositeOperation = "destination-out";
+  context.beginPath();
+  context.arc(centerX, centerY, inner, 0, Math.PI * 2);
+  context.fill();
+  context.globalCompositeOperation = "source-over";
+  context.strokeStyle = "rgba(255, 255, 255, 0.35)";
+  context.lineWidth = 1;
+  context.beginPath();
+  context.arc(centerX, centerY, inner, 0, Math.PI * 2);
+  context.stroke();
+
+  context.textAlign = "center";
+  context.fillStyle = "#eaf1ff";
+  context.font = '650 10px Inter, system-ui, sans-serif';
+  context.fillText("TOTAL OMZET NOV", centerX, centerY - 12);
+  context.font = '750 17px Inter, system-ui, sans-serif';
+  context.fillText(compactMoney(total), centerX, centerY + 13);
+  context.fillStyle = "#9bb8ec";
+  context.font = '500 10px Inter, system-ui, sans-serif';
+  context.fillText(`${items.length} SKU`, centerX, centerY + 30);
+
+  $("skuLegend").innerHTML = items
+    .map((item, index) => {
+      const color = SKU_COLORS[index % SKU_COLORS.length];
+      const share = item.nov / total * 100;
+      return `<div class="pie-legend-row">
+        <i class="pie-legend-swatch" style="background:${color}"></i>
+        <span class="pie-legend-name" title="${esc(item.sku)}">${esc(item.sku)}</span>
+        <span class="pie-legend-value">${share.toFixed(1)}% · ${money(item.nov)}</span>
+      </div>`;
+    })
+    .join("");
+}
+
+function renderSku() {
+  if (!state.sku) return;
+  const items = currentSkuItems();
+  const total = items.reduce((sum, item) => sum + item.nov, 0);
+  const groupLabel = state.skuGroup === "ALL"
+    ? "Semua Customer Group"
+    : state.skuGroup;
+
+  $("skuMeta").innerHTML = `
+    <span><b>${items.length}</b> SKU</span>
+    <span><b>${money(total)}</b> omzet November</span>
+    <span>Filter: <b>${esc(groupLabel)}</b></span>`;
+  $("skuTableNote").textContent = `${groupLabel} · ${items.length} SKU dari sheet “By SKU”`;
+  $("skuChartNote").textContent = `Kontribusi omzet November · ${groupLabel}`;
+  renderSkuTable(items, total);
+  renderSkuPie(items);
+}
+
+function setPage(page) {
+  state.page = page;
+  document.querySelectorAll(".page-tab").forEach((button) => {
+    button.classList.toggle("active", button.dataset.page === page);
+  });
+  $("pageGroup").classList.toggle("hidden", page !== "group");
+  $("pageSku").classList.toggle("hidden", page !== "sku");
+  if (page === "sku") {
+    renderSku();
+    requestAnimationFrame(() => renderSkuPie(currentSkuItems()));
+  }
+}
+
 function renderAll() {
   if (!state.data) return;
   const groups = currentGroups();
@@ -1229,8 +1540,10 @@ function parseNum(value) {
 /* Google Sheets gviz mengembalikan JS callback, jadi bisa dipanggil lintas origin
    lewat tag <script> tanpa kena CORS. Request dijalankan berurutan karena nama
    callback-nya tetap google.visualization.Query.setResponse. */
+let gvizQueue = Promise.resolve();
+
 function fetchGViz(sheet, range) {
-  return new Promise((resolve, reject) => {
+  const request = () => new Promise((resolve, reject) => {
     let script = null;
     const timer = setTimeout(() => {
       if (script) script.remove();
@@ -1262,6 +1575,10 @@ function fetchGViz(sheet, range) {
     };
     document.head.appendChild(script);
   });
+
+  const queued = gvizQueue.then(request, request);
+  gvizQueue = queued.catch(() => {});
+  return queued;
 }
 
 async function cachedGViz(key, sheet, range, ttl) {
@@ -1385,6 +1702,60 @@ function buildPayload(mt, promo, date) {
   };
 }
 
+function buildSkuPayload(sku) {
+  const labels = sku.cols.map((col) => String(col.label || "").trim().toLowerCase());
+  const at = (name) => labels.indexOf(name.toLowerCase());
+  const iCode = at("Customer Code");
+  const iGroup = at("Customer Group");
+  const iSku = at("SKU Name");
+  const iNov = at("Omzet November 2026");
+  if ([iCode, iGroup, iSku, iNov].some((i) => i < 0)) {
+    throw new Error("Header sheet By SKU berubah, cek kembali kolomnya");
+  }
+
+  const byGroup = new Map();
+  let rowCount = 0;
+  sku.rows.forEach((row) => {
+    const c = row.c || [];
+    const code = String(cellValue(c[iCode])).trim();
+    const group = String(cellValue(c[iGroup])).trim();
+    const name = String(cellValue(c[iSku])).trim();
+    const groupKey = normalizeText(group);
+    if (!code || !group || !name || groupKey === "grandtotal" || groupKey === "total") return;
+    if (!byGroup.has(group)) byGroup.set(group, new Map());
+    const bySku = byGroup.get(group);
+    bySku.set(name, (bySku.get(name) || 0) + parseNum(cellValue(c[iNov])));
+    rowCount += 1;
+  });
+
+  const rows = [];
+  byGroup.forEach((bySku, group) => {
+    bySku.forEach((nov, name) => rows.push({ group, sku: name, nov }));
+  });
+  if (!rows.length) throw new Error("Tidak ada data di sheet By SKU");
+  rows.sort((a, b) => a.group.localeCompare(b.group) || a.sku.localeCompare(b.sku));
+
+  const groups = Array.from(byGroup.keys()).sort((a, b) => a.localeCompare(b));
+  const skus = Array.from(new Set(rows.map((row) => row.sku))).sort((a, b) => a.localeCompare(b));
+  const total = rows.reduce((sum, row) => sum + row.nov, 0);
+
+  return {
+    ok: true,
+    fetched_at: new Date().toISOString(),
+    groups,
+    skus,
+    rows,
+    total,
+    meta: {
+      row_count: rowCount,
+      group_count: groups.length,
+      sku_count: skus.length,
+      header_source: "gviz JSONP",
+    },
+    stale: false,
+  };
+}
+
 async function loadData(force = false) {
   if (state.loading) return;
   state.loading = true;
@@ -1432,11 +1803,68 @@ async function loadData(force = false) {
   }
 }
 
+async function loadSkuData(force = false) {
+  if (state.skuLoading) return;
+  state.skuLoading = true;
+  try {
+    if (force) delete gvizCache["sku"];
+    const sku = await cachedGViz("sku", "By SKU", "B:E", 0);
+    const payload = buildSkuPayload(sku);
+    state.sku = payload;
+
+    const select = $("skuGroupFilter");
+    select.innerHTML =
+      '<option value="ALL">Semua Customer Group</option>' +
+      payload.groups.map((group) => `<option value="${esc(group)}">${esc(group)}</option>`).join("");
+    select.value = state.skuGroup;
+    renderSku();
+  } catch (error) {
+    state.sku = null;
+    $("skuMeta").textContent = `Gagal memuat data SKU: ${error.message}`;
+    $("skuTableBody").innerHTML = '<tr><td colspan="3" class="empty-state">Data SKU belum tersedia.</td></tr>';
+    $("skuLegend").innerHTML = '<div class="promo-empty">Data SKU belum tersedia.</div>';
+  } finally {
+    state.skuLoading = false;
+  }
+}
+
 /* -------------------------------------------------------------------------
    Events
    ------------------------------------------------------------------------- */
 function bindEvents() {
-  $("refreshBtn").addEventListener("click", () => loadData(true));
+  $("refreshBtn").addEventListener("click", () => {
+    loadData(true);
+    loadSkuData(true);
+  });
+
+  document.querySelectorAll(".page-tab").forEach((button) => {
+    button.addEventListener("click", () => setPage(button.dataset.page));
+  });
+
+  $("skuGroupFilter").addEventListener("change", (event) => {
+    state.skuGroup = event.target.value;
+    renderSku();
+  });
+  $("skuSearch").addEventListener("input", (event) => {
+    state.skuSearch = event.target.value;
+    renderSku();
+  });
+  $("skuSort").addEventListener("change", (event) => {
+    state.skuSort = event.target.value;
+    renderSku();
+  });
+  $("skuResetBtn").addEventListener("click", () => {
+    state.skuGroup = "ALL";
+    state.skuSearch = "";
+    state.skuSort = "nov:desc";
+    $("skuGroupFilter").value = "ALL";
+    $("skuSearch").value = "";
+    $("skuSort").value = "nov:desc";
+    renderSku();
+  });
+  window.addEventListener("resize", () => {
+    if (state.page === "sku" && state.sku) renderSkuPie(currentSkuItems());
+  });
 
   $("regionFilter").addEventListener("change", (event) => {
     state.region = event.target.value;
@@ -1531,8 +1959,12 @@ function bindEvents() {
 
 bindEvents();
 loadData();
+loadSkuData();
 // Live update: ambil data terbaru tiap 30 detik (server cache maks. 15 detik).
-setInterval(() => loadData(false), 30 * 1000);
+setInterval(() => {
+  loadData(false);
+  loadSkuData(false);
+}, 30 * 1000);
 
 </script>
 </body>
