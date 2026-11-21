@@ -1,0 +1,1539 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Dashboard performa penjualan Lezza per Customer Group — data otomatis dari Google Sheets.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%23143a7d'/%3E%3Ctext%20x='32'%20y='45'%20font-size='40'%20font-family='Arial'%20font-weight='bold'%20text-anchor='middle'%20fill='white'%3EL%3C/text%3E%3C/svg%3E">
+  <title>Lezza · Performa Penjualan per Customer Group</title>
+  <style>
+:root {
+  --bg: #06122c;
+  --bg-2: #081a3d;
+  --panel: #0d2452;
+  --panel-2: #112e69;
+  --panel-3: #163a81;
+  --line: #1d448c;
+  --line-soft: rgba(120, 165, 245, 0.16);
+  --text: #eaf1ff;
+  --muted: #9bb8ec;
+  --muted-2: #6f93cf;
+  --accent: #3d82f6;
+  --accent-bright: #63a4ff;
+  --accent-dim: #1d4fa8;
+  --good: #35d2a0;
+  --warn: #f6c453;
+  --bad: #ff7b85;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 18px 45px rgba(0, 8, 28, 0.35);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: #0d2452;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  background: #ffffff;
+}
+
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+.hidden { display: none !important; }
+
+.app-shell {
+  max-width: 1520px;
+  margin: 0 auto;
+  padding: 26px 30px 36px;
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.brand { display: flex; align-items: center; gap: 14px; }
+
+.brand-mark {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #4b93ff, #1b4da8);
+  box-shadow: 0 10px 24px rgba(24, 88, 200, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  color: #fff;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.brand-title { font-size: 20px; font-weight: 750; letter-spacing: -0.02em; color: #0a2352; }
+.brand-subtitle { color: #4a68a3; font-size: 12.5px; margin-top: 2px; }
+
+.top-actions { display: flex; align-items: center; gap: 12px; }
+
+.source-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 14px;
+  border: 1px solid #1b4fa3;
+  border-radius: 999px;
+  background: #0e2a60;
+  color: #b9d2ff;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.source-chip strong { color: #ffffff; font-weight: 650; }
+.source-chip .live-label { color: #7ee7bd; letter-spacing: 0.08em; font-size: 10px; }
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--good);
+  box-shadow: 0 0 0 4px rgba(53, 210, 160, 0.14);
+  animation: pulse 2.4s infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(53, 210, 160, 0.14); }
+  50% { box-shadow: 0 0 0 8px rgba(53, 210, 160, 0.03); }
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  padding: 10px 15px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, opacity 0.18s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.55; cursor: wait; }
+.btn svg { width: 15px; height: 15px; }
+.btn-primary {
+  color: #fff;
+  background: linear-gradient(135deg, #387fe8, #255fc9);
+  border-color: #4b8df3;
+  box-shadow: 0 8px 20px rgba(31, 94, 200, 0.32);
+}
+.btn-primary:hover { background: linear-gradient(135deg, #478cf5, #2c6bd8); }
+.btn-outline {
+  color: var(--accent-bright);
+  background: rgba(42, 104, 205, 0.1);
+  border-color: var(--line);
+}
+.btn-outline:hover { background: rgba(42, 104, 205, 0.2); }
+.btn-quiet {
+  color: #ffffff;
+  background: #143a7d;
+  border-color: #2a5cae;
+}
+.btn-quiet:hover { color: #ffffff; background: #1c4d9c; }
+.btn.full { width: 100%; margin-top: 12px; }
+
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  font-size: 22px;
+  line-height: 1;
+}
+.icon-btn:hover { color: var(--text); background: rgba(255, 255, 255, 0.09); }
+
+/* ---------- Cards ---------- */
+.card {
+  background: linear-gradient(180deg, rgba(17, 46, 105, 0.92), rgba(11, 32, 74, 0.92));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  color: var(--text);
+}
+
+.alert {
+  margin-bottom: 18px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #e7c96a;
+  background: #fff8e2;
+  color: #6b4c05;
+  font-size: 13px;
+}
+.alert.error {
+  border-color: #e8a1a8;
+  background: #fff0f1;
+  color: #8b2732;
+}
+
+/* ---------- KPI ---------- */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.kpi {
+  position: relative;
+  overflow: hidden;
+  padding: 18px 20px 17px;
+  min-height: 150px;
+}
+.kpi::after {
+  content: "";
+  position: absolute;
+  inset: auto -30% -80% auto;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(61, 130, 246, 0.14), transparent 68%);
+  pointer-events: none;
+}
+.kpi-highlight {
+  border-color: #3c7ee0;
+  background: linear-gradient(145deg, #17408e, #0e2b64 70%);
+}
+
+.kpi-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.kpi-label { color: var(--muted); font-size: 12.5px; font-weight: 600; letter-spacing: 0.01em; }
+.kpi-icon {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  color: var(--accent-bright);
+  background: rgba(61, 130, 246, 0.14);
+  border: 1px solid rgba(99, 164, 255, 0.2);
+}
+.kpi-value {
+  margin-top: 12px;
+  font-size: clamp(22px, 2vw, 29px);
+  font-weight: 760;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-foot { margin-top: 8px; font-size: 11.5px; color: var(--muted-2); min-height: 18px; }
+
+.tag {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.tag-blue { color: #dcecff; background: rgba(99, 164, 255, 0.18); border: 1px solid rgba(99, 164, 255, 0.28); }
+.tag-blue-soft { color: var(--muted); background: rgba(255, 255, 255, 0.045); }
+
+.progress {
+  margin-top: 12px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #2e70dc, #63a4ff);
+  transition: width 0.5s ease, background 0.3s ease;
+}
+.progress-fill.good { background: linear-gradient(90deg, #1e9e76, var(--good)); }
+.progress-fill.warn { background: linear-gradient(90deg, #c89128, var(--warn)); }
+.progress-fill.bad { background: linear-gradient(90deg, #c94f5d, var(--bad)); }
+
+/* ---------- Filters ---------- */
+.filter-card { padding: 16px 18px; margin-bottom: 16px; }
+.filter-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 172px; }
+.field-search { flex: 1 1 260px; }
+.field-inline { min-width: 160px; }
+.field-label { color: var(--muted); font-size: 11px; font-weight: 650; letter-spacing: 0.03em; text-transform: uppercase; }
+
+select, input[type="search"], .modal-tools input {
+  width: 100%;
+  height: 39px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: #0a1f49;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+select:hover, input[type="search"]:hover, .modal-tools input:hover { border-color: #3263b7; }
+select:focus, input[type="search"]:focus, .modal-tools input:focus {
+  border-color: var(--accent-bright);
+  box-shadow: 0 0 0 3px rgba(61, 130, 246, 0.18);
+}
+select { appearance: none; padding-right: 34px; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 18px) 17px, calc(100% - 13px) 17px; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
+input::placeholder { color: var(--muted-2); }
+
+.filter-meta {
+  margin-top: 13px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-soft);
+  color: var(--muted);
+  font-size: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+.filter-meta b { color: var(--text); font-weight: 650; }
+
+/* ---------- Layout ---------- */
+.main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.85fr) minmax(300px, 0.85fr);
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: start;
+}
+.side-col { display: grid; gap: 16px; }
+
+.card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.card-head.compact { padding: 16px 18px 12px; }
+.card-head h2 { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+.card-head p { margin: 4px 0 0; color: var(--muted-2); font-size: 11.5px; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: 11px; white-space: nowrap; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.dot-good { background: var(--good); }
+.dot-warn { background: var(--warn); }
+.dot-bad { background: var(--bad); }
+
+/* ---------- Table ---------- */
+.table-wrap { overflow-x: auto; max-height: 620px; overflow-y: auto; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.data-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 11px 14px;
+  background: #102d68;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--line);
+}
+.data-table th.num, .data-table td.num { text-align: right; }
+.data-table td { padding: 11px 14px; border-bottom: 1px solid rgba(120, 165, 245, 0.075); font-variant-numeric: tabular-nums; color: var(--text); }
+.data-table tbody tr.group-row { cursor: pointer; transition: background 0.15s ease; }
+.data-table tbody tr.group-row:hover { background: rgba(61, 130, 246, 0.09); }
+.data-table tbody tr.group-row.expanded { background: rgba(61, 130, 246, 0.13); }
+.data-table tbody tr.detail-row td { padding: 0; background: rgba(5, 19, 47, 0.55); border-bottom: 1px solid var(--line); }
+
+.sort-btn {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.sort-btn:hover { color: var(--text); }
+.sort-btn.active { color: var(--accent-bright); }
+.sort-btn .arrow { font-size: 9px; opacity: 0.9; }
+
+.group-name { display: flex; align-items: center; gap: 9px; font-weight: 650; color: var(--text); }
+.chevron { width: 16px; color: var(--muted-2); transition: transform 0.18s ease; flex: 0 0 16px; }
+tr.expanded .chevron { transform: rotate(90deg); color: var(--accent-bright); }
+
+.region-pill {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(61, 130, 246, 0.13);
+  border: 1px solid rgba(99, 164, 255, 0.18);
+  color: #bcd6ff;
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.region-pill.multi { background: rgba(120, 165, 245, 0.07); color: var(--muted); }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 62px;
+  padding: 4px 8px;
+  border-radius: 7px;
+  font-size: 11.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.badge.good { color: #a8f4d8; background: rgba(53, 210, 160, 0.14); border: 1px solid rgba(53, 210, 160, 0.26); }
+.badge.warn { color: #ffe2a2; background: rgba(246, 196, 83, 0.13); border: 1px solid rgba(246, 196, 83, 0.25); }
+.badge.bad { color: #ffc3c9; background: rgba(255, 123, 133, 0.13); border: 1px solid rgba(255, 123, 133, 0.25); }
+.badge.none { color: var(--muted); background: rgba(255, 255, 255, 0.05); border: 1px solid var(--line-soft); }
+
+.promo-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+.promo-count b { color: var(--accent-bright); }
+.promo-count.zero { opacity: 0.45; }
+
+.empty-state { padding: 34px 16px !important; text-align: center; color: var(--muted-2); }
+
+/* ---------- Detail row ---------- */
+.detail-panel {
+  display: block;
+  padding: 14px 18px 18px;
+}
+.detail-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.detail-tab {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 13px;
+  font-size: 11.5px;
+  font-weight: 650;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.045);
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.detail-tab:hover { color: var(--text); border-color: #3c7ee0; }
+.detail-tab.active { color: #ffffff; background: #245fbe; border-color: #4b8df3; }
+.detail-block h3 { margin: 0 0 9px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.detail-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+.detail-table th { text-align: left; color: var(--muted-2); font-weight: 600; padding: 5px 8px; border-bottom: 1px solid var(--line-soft); white-space: nowrap; }
+.detail-table td { padding: 6px 8px; border-bottom: 1px solid rgba(120, 165, 245, 0.06); color: var(--text); }
+.detail-table td:first-child { max-width: 420px; overflow-wrap: anywhere; }
+.detail-table td.num, .detail-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.detail-note { color: var(--muted-2); font-size: 11px; margin-top: 8px; }
+.promo-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 7px; max-height: 260px; overflow-y: auto; padding-right: 4px; }
+.promo-item {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(61, 130, 246, 0.09);
+  border: 1px solid var(--line-soft);
+  color: #cfe1ff;
+  font-size: 11px;
+}
+.promo-item small { display: block; color: var(--muted-2); margin-top: 3px; }
+
+/* ---------- Side cards ---------- */
+.region-bars { padding: 14px 18px 18px; display: grid; gap: 12px; }
+.region-row { cursor: pointer; }
+.region-row-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; margin-bottom: 6px; }
+.region-name { font-size: 11.5px; color: #c8dcff; font-weight: 600; }
+.region-value { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.region-track { height: 7px; border-radius: 999px; background: rgba(255, 255, 255, 0.07); overflow: hidden; }
+.region-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #2a63c9, #66a8ff); transition: width 0.45s ease; }
+.region-row:hover .region-fill { background: linear-gradient(90deg, #3d82f6, #8cc0ff); }
+.region-row.selected .region-name { color: var(--accent-bright); }
+
+.promo-total { display: flex; align-items: baseline; gap: 8px; padding: 14px 18px 4px; }
+.promo-total-value { font-size: 27px; font-weight: 760; letter-spacing: -0.03em; color: var(--accent-bright); }
+.promo-total-label { color: var(--muted); font-size: 11.5px; }
+.promo-top { padding: 8px 18px 0; display: grid; gap: 9px; }
+.promo-top-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: 11.5px; }
+.promo-top-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #c8dcff; }
+.promo-top-count { color: var(--muted); font-variant-numeric: tabular-nums; }
+.promo-top-track { grid-column: 1 / -1; height: 4px; border-radius: 999px; background: rgba(255, 255, 255, 0.07); overflow: hidden; }
+.promo-top-fill { height: 100%; background: linear-gradient(90deg, #2e70dc, #63a4ff); }
+.side-card .btn.full { width: calc(100% - 36px); margin: 14px 18px 18px; }
+
+/* ---------- Chart ---------- */
+.chart-card { margin-bottom: 16px; }
+.chart-legend { display: flex; gap: 18px; padding: 12px 20px 0; font-size: 11px; color: var(--muted); }
+.chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.swatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.swatch-base { background: #2a6390; }
+.swatch-nov { background: linear-gradient(90deg, #3d82f6, #7db4ff); }
+
+.chart-rows { padding: 14px 20px 20px; display: grid; gap: 13px; }
+.chart-row { display: grid; grid-template-columns: 190px minmax(0, 1fr) 74px; gap: 14px; align-items: center; }
+.chart-label { font-size: 11.5px; font-weight: 600; color: #d4e4ff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chart-bars { display: grid; gap: 5px; }
+.chart-bar-wrap { height: 9px; border-radius: 6px; background: rgba(255, 255, 255, 0.055); overflow: hidden; }
+.chart-bar { height: 100%; border-radius: inherit; transition: width 0.5s ease; }
+.chart-bar.base { background: #2a6390; }
+.chart-bar.nov { background: linear-gradient(90deg, #3577e6, #7db4ff); }
+.chart-ach { text-align: right; font-size: 11.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.chart-ach.good { color: var(--good); }
+.chart-ach.warn { color: var(--warn); }
+.chart-ach.bad { color: var(--bad); }
+.chart-ach.none { color: var(--muted-2); }
+
+/* ---------- Footer ---------- */
+.footer { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 6px 4px 0; color: #5a76a8; font-size: 11px; }
+
+/* ---------- Modal ---------- */
+.modal { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 24px; }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(2, 9, 24, 0.78); backdrop-filter: blur(4px); }
+.modal-panel {
+  position: relative;
+  width: min(860px, 100%);
+  max-height: min(760px, 90vh);
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  border: 1px solid #2a5cae;
+  background: linear-gradient(180deg, #12306b, #0a1e49);
+  box-shadow: 0 30px 80px rgba(0, 5, 20, 0.6);
+  overflow: hidden;
+  color: var(--text);
+}
+.modal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 20px 22px 14px; border-bottom: 1px solid var(--line-soft); }
+.modal-head h2 { margin: 0; font-size: 17px; }
+.modal-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+.modal-tools { padding: 14px 22px 8px; }
+.modal-body { padding: 8px 22px 22px; overflow-y: auto; }
+.promo-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.promo-table th { text-align: left; padding: 9px 10px; color: var(--muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: #12306b; }
+.promo-table td { padding: 10px; border-bottom: 1px solid rgba(120, 165, 245, 0.08); vertical-align: top; color: var(--text); }
+.promo-table .promo-name-cell { color: #dcebff; min-width: 280px; }
+.promo-table .promo-key-cell { color: var(--muted); white-space: nowrap; }
+.promo-table .promo-region-cell { color: var(--muted-2); font-size: 11px; }
+.promo-empty { padding: 30px; text-align: center; color: var(--muted-2); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1180px) {
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .main-grid { grid-template-columns: 1fr; }
+  .side-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+  .app-shell { padding: 18px 14px 28px; }
+  .topbar { align-items: flex-start; flex-direction: column; }
+  .top-actions { width: 100%; justify-content: space-between; }
+  .kpi-grid { grid-template-columns: 1fr; }
+  .side-col { grid-template-columns: 1fr; }
+  .filter-row .field { flex: 1 1 100%; }
+  .card-head { flex-direction: column; }
+  .chart-row { grid-template-columns: 120px minmax(0, 1fr) 60px; gap: 8px; }
+  .detail-panel { grid-template-columns: 1fr; }
+  .modal { padding: 8px; }
+}
+
+</style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><span>L</span></div>
+        <div class="brand-copy">
+          <div class="brand-title">Lezza Sales Performance</div>
+          <div class="brand-subtitle">Monitoring MT · Analisis performa per Customer Group</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <div class="source-chip" title="Live · data diambil ulang tiap 30 detik dari Google Sheets">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span><strong class="live-label">LIVE</strong> · Data per <strong id="sourceDate">—</strong> · refresh 30 dtk</span>
+        </div>
+        <button class="btn btn-primary" id="refreshBtn" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg>
+          <span>Refresh Data</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="alert hidden" id="alertBox" role="status"></div>
+
+    <section class="kpi-grid" aria-label="Ringkasan performa">
+      <article class="card kpi kpi-highlight">
+        <div class="kpi-top">
+          <span class="kpi-label">Omzet November 2026</span>
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M14 7h7v7"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiNov">—</div>
+        <div class="kpi-foot"><span class="tag tag-blue">Sum per Customer Group</span></div>
+      </article>
+
+      <article class="card kpi">
+        <div class="kpi-top">
+          <span class="kpi-label">Average L3M</span>
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 19V9m5 10V5m5 14v-7m5 7V8"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiL3m">—</div>
+        <div class="kpi-foot"><span class="tag tag-blue-soft">Dasar penilaian · rata-rata 3 bulan</span></div>
+      </article>
+
+      <article class="card kpi">
+        <div class="kpi-top">
+          <span class="kpi-label">Pencapaian vs L3M</span>
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiAch">—</div>
+        <div class="progress" aria-hidden="true"><div class="progress-fill" id="kpiAchBar"></div></div>
+        <div class="kpi-foot"><span id="kpiAchStatus">Omzet Nov ÷ Average L3M</span></div>
+      </article>
+
+      <article class="card kpi">
+        <div class="kpi-top">
+          <span class="kpi-label">Average 2026</span>
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiAvg26">—</div>
+        <div class="kpi-foot"><span class="tag tag-blue-soft">Landasan performa account 2026</span></div>
+      </article>
+    </section>
+
+    <section class="card filter-card">
+      <div class="filter-row">
+        <label class="field">
+          <span class="field-label">Region</span>
+          <select id="regionFilter"><option value="ALL">Semua Region</option></select>
+        </label>
+        <label class="field">
+          <span class="field-label">Status pencapaian</span>
+          <select id="statusFilter">
+            <option value="ALL">Semua status</option>
+            <option value="good">Tercapai (≥ 100%)</option>
+            <option value="warn">Mendekati (80–99%)</option>
+            <option value="bad">Perlu dorong (&lt; 80%)</option>
+            <option value="none">Tanpa baseline</option>
+          </select>
+        </label>
+        <label class="field field-search">
+          <span class="field-label">Cari Customer Group</span>
+          <input id="searchInput" type="search" placeholder="Contoh: AEON, Luwes, Hari Hari..." autocomplete="off">
+        </label>
+        <label class="field">
+          <span class="field-label">Urutkan</span>
+          <select id="sortSelect">
+            <option value="nov:desc">Omzet Nov · terbesar</option>
+            <option value="nov:asc">Omzet Nov · terkecil</option>
+            <option value="ach:desc">Pencapaian · tertinggi</option>
+            <option value="ach:asc">Pencapaian · terendah</option>
+            <option value="l3m:desc">Average L3M · terbesar</option>
+            <option value="l3m:asc">Average L3M · terkecil</option>
+            <option value="avg2026:desc">Average 2026 · terbesar</option>
+            <option value="avg2026:asc">Average 2026 · terkecil</option>
+            <option value="promos:desc">Jumlah promo · terbanyak</option>
+            <option value="group:asc">Nama group · A–Z</option>
+            <option value="group:desc">Nama group · Z–A</option>
+          </select>
+        </label>
+        <button class="btn btn-quiet" id="resetBtn" type="button">Reset</button>
+      </div>
+      <div class="filter-meta" id="filterMeta">Menyiapkan data…</div>
+    </section>
+
+    <section class="main-grid">
+      <div class="card table-card">
+        <div class="card-head">
+          <div>
+            <h2>Peringkat Customer Group</h2>
+            <p>Klik baris untuk melihat account &amp; promo di dalam group.</p>
+          </div>
+          <div class="legend">
+            <span><i class="dot dot-good"></i> ≥ 100%</span>
+            <span><i class="dot dot-warn"></i> 80–99%</span>
+            <span><i class="dot dot-bad"></i> &lt; 80%</span>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="groupTable">
+            <thead>
+              <tr>
+                <th class="col-group"><button class="sort-btn" data-sort="group">Customer Group</button></th>
+                <th>Region</th>
+                <th class="num"><button class="sort-btn" data-sort="avg2026">Average 2026</button></th>
+                <th class="num"><button class="sort-btn" data-sort="l3m">Average L3M</button></th>
+                <th class="num"><button class="sort-btn" data-sort="nov">Omzet Nov</button></th>
+                <th class="num"><button class="sort-btn" data-sort="ach">% vs L3M</button></th>
+                <th class="num"><button class="sort-btn" data-sort="promos">Promo</button></th>
+              </tr>
+            </thead>
+            <tbody id="groupTableBody">
+              <tr><td colspan="7" class="empty-state">Memuat data…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside class="side-col">
+        <div class="card side-card">
+          <div class="card-head compact">
+            <div><h2>Distribusi Region</h2><p>Berdasarkan Omzet November 2026</p></div>
+          </div>
+          <div id="regionBars" class="region-bars"></div>
+        </div>
+
+        <div class="card side-card">
+          <div class="card-head compact">
+            <div><h2>Kegiatan Promo</h2><p>Terhubung dengan sheet Promo</p></div>
+          </div>
+          <div class="promo-total">
+            <span class="promo-total-value" id="promoTotal">—</span>
+            <span class="promo-total-label">promo terpetakan</span>
+          </div>
+          <div id="promoTop" class="promo-top"></div>
+          <button class="btn btn-outline full" id="openPromoBtn" type="button">Lihat semua promo</button>
+        </div>
+      </aside>
+    </section>
+
+    <section class="card chart-card">
+      <div class="card-head">
+        <div>
+          <h2>Perbandingan Group</h2>
+          <p>Average L3M vs Omzet November 2026 · 10 group teratas</p>
+        </div>
+        <label class="field field-inline">
+          <span class="field-label">Urut berdasarkan</span>
+          <select id="chartMetric">
+            <option value="nov">Omzet Nov</option>
+            <option value="ach">Pencapaian %</option>
+            <option value="l3m">Average L3M</option>
+          </select>
+        </label>
+      </div>
+      <div class="chart-legend">
+        <span><i class="swatch swatch-base"></i> Average L3M</span>
+        <span><i class="swatch swatch-nov"></i> Omzet November 2026</span>
+      </div>
+      <div id="chartRows" class="chart-rows"></div>
+    </section>
+
+    <footer class="footer">
+      <span>Sumber: Google Sheets · “Monitoring MT” &amp; “Promo” · live update tiap 30 detik.</span>
+      <span id="fetchedAt">—</span>
+    </footer>
+  </div>
+
+  <div class="modal hidden" id="promoModal" role="dialog" aria-modal="true" aria-labelledby="promoModalTitle">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-panel">
+      <div class="modal-head">
+        <div>
+          <h2 id="promoModalTitle">Daftar Kegiatan Promo</h2>
+          <p id="promoModalMeta">—</p>
+        </div>
+        <button class="icon-btn" id="closePromoBtn" type="button" aria-label="Tutup">×</button>
+      </div>
+      <div class="modal-tools">
+        <input id="promoSearch" type="search" placeholder="Cari nama promo atau group..." autocomplete="off">
+      </div>
+      <div class="modal-body" id="promoList"></div>
+    </div>
+  </div>
+
+  <script>
+/* Lezza Sales Dashboard — frontend logic.
+   Semua agregasi per Customer Group dilakukan dari baris customer code. */
+
+const $ = (id) => document.getElementById(id);
+const numberFormatter = new Intl.NumberFormat("id-ID");
+const timeFormatter = new Intl.DateTimeFormat("id-ID", {
+  day: "2-digit", month: "short", year: "numeric",
+  hour: "2-digit", minute: "2-digit",
+});
+
+const state = {
+  data: null,
+  region: "ALL",
+  status: "ALL",
+  search: "",
+  sort: "nov:desc",
+  chartMetric: "nov",
+  expanded: new Set(),
+  detailViews: {},
+  loading: false,
+};
+
+const STATUS_LABEL = {
+  good: "Tercapai",
+  warn: "Mendekati target",
+  bad: "Perlu dorong",
+  none: "Tanpa baseline L3M",
+};
+
+const ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ESCAPES[char]);
+}
+function money(value) {
+  return numberFormatter.format(Math.round(value || 0));
+}
+function achievement(nov, l3m) {
+  return l3m > 0 ? (nov / l3m) * 100 : null;
+}
+function statusOf(value) {
+  if (value === null || value === undefined) return "none";
+  if (value >= 100) return "good";
+  if (value >= 80) return "warn";
+  return "bad";
+}
+function percentText(value) {
+  return value === null || value === undefined ? "—" : `${value.toFixed(1)}%`;
+}
+
+/* -------------------------------------------------------------------------
+   Aggregation
+   ------------------------------------------------------------------------- */
+function aggregateGroups(data, region) {
+  const map = new Map();
+  for (const row of data.rows) {
+    if (region !== "ALL" && row.region !== region) continue;
+    let group = map.get(row.group);
+    if (!group) {
+      group = {
+        group: row.group,
+        avg2026: 0, l3m: 0, nov: 0,
+        count: 0,
+        regions: new Set(),
+        customers: [],
+      };
+      map.set(row.group, group);
+    }
+    group.avg2026 += row.avg2026;
+    group.l3m += row.l3m;
+    group.nov += row.nov;
+    group.count += 1;
+    group.regions.add(row.region);
+    group.customers.push(row);
+  }
+
+  const promosByGroup = new Map();
+  for (const promo of data.promos) {
+    for (const link of promo.groups) {
+      if (region !== "ALL" && !link.regions.includes(region)) continue;
+      if (!promosByGroup.has(link.group)) promosByGroup.set(link.group, []);
+      promosByGroup.get(link.group).push(promo);
+    }
+  }
+
+  return Array.from(map.values()).map((group) => {
+    const ach = achievement(group.nov, group.l3m);
+    return {
+      ...group,
+      regions: Array.from(group.regions),
+      promos: promosByGroup.get(group.group) || [],
+      ach,
+      status: statusOf(ach),
+    };
+  });
+}
+
+function totalsOf(groups) {
+  return groups.reduce(
+    (acc, group) => ({
+      avg2026: acc.avg2026 + group.avg2026,
+      l3m: acc.l3m + group.l3m,
+      nov: acc.nov + group.nov,
+      count: acc.count + group.count,
+      promos: acc.promos + group.promos.length,
+    }),
+    { avg2026: 0, l3m: 0, nov: 0, count: 0, promos: 0 }
+  );
+}
+
+function currentGroups() {
+  if (!state.data) return [];
+  let groups = aggregateGroups(state.data, state.region);
+
+  if (state.status !== "ALL") {
+    groups = groups.filter((group) => group.status === state.status);
+  }
+  if (state.search.trim()) {
+    const query = state.search.trim().toLowerCase();
+    groups = groups.filter(
+      (group) =>
+        group.group.toLowerCase().includes(query) ||
+        group.customers.some((c) => c.customer.toLowerCase().includes(query))
+    );
+  }
+
+  const [key, direction] = state.sort.split(":");
+  const valueOf = (group) => {
+    if (key === "ach") return group.ach === null ? -Infinity : group.ach;
+    if (key === "promos") return group.promos.length;
+    if (key === "group") return group.group.toLowerCase();
+    return group[key] ?? 0;
+  };
+  groups.sort((a, b) => {
+    const left = valueOf(a);
+    const right = valueOf(b);
+    const comparison = typeof left === "string" ? left.localeCompare(right) : left - right;
+    return direction === "asc" ? comparison : -comparison;
+  });
+  return groups;
+}
+
+/* -------------------------------------------------------------------------
+   Rendering
+   ------------------------------------------------------------------------- */
+function renderKPIs(groups) {
+  const totals = totalsOf(groups);
+  const ach = achievement(totals.nov, totals.l3m);
+  const status = statusOf(ach);
+
+  $("kpiNov").textContent = money(totals.nov);
+  $("kpiL3m").textContent = money(totals.l3m);
+  $("kpiAvg26").textContent = money(totals.avg2026);
+  $("kpiAch").textContent = ach === null ? "—" : percentText(ach);
+  $("kpiAchStatus").textContent = `${STATUS_LABEL[status]} · Omzet Nov ÷ Average L3M`;
+
+  const bar = $("kpiAchBar");
+  bar.className = `progress-fill ${status}`;
+  bar.style.width = `${Math.min(100, Math.max(0, ach || 0))}%`;
+}
+
+function renderFilterMeta(groups) {
+  const totals = totalsOf(groups);
+  $("filterMeta").innerHTML = `
+    <span><b>${groups.length}</b> Customer Group</span>
+    <span><b>${totals.count}</b> customer/account</span>
+    <span><b>${state.data.promos.length}</b> promo terpetakan</span>
+    <span>Filter: <b>${state.region === "ALL" ? "Semua Region" : esc(state.region)}</b></span>`;
+}
+
+function detailRow(group) {
+  const customers = group.customers
+    .slice()
+    .sort((a, b) => b.nov - a.nov)
+    .map((c) => {
+      const ach = achievement(c.nov, c.l3m);
+      return `<tr>
+        <td>${esc(c.customer)}</td>
+        <td>${esc(c.region)}</td>
+        <td class="num">${money(c.avg2026)}</td>
+        <td class="num">${money(c.l3m)}</td>
+        <td class="num">${money(c.nov)}</td>
+        <td class="num">${percentText(ach)}</td>
+      </tr>`;
+    })
+    .join("");
+
+  const promoItems = group.promos.length
+    ? group.promos
+        .map(
+          (promo) =>
+            `<div class="promo-item">${esc(promo.name)}<small>${esc(promo.key)}</small></div>`
+        )
+        .join("")
+    : '<div class="detail-note">Tidak ada promo yang terpetakan untuk group ini.</div>';
+
+  const multiRegionNote =
+    group.regions.length > 1
+      ? `<div class="detail-note">Group ini memiliki account di ${group.regions.length} region: ${esc(group.regions.join(", "))}.</div>`
+      : "";
+
+  const view = state.detailViews[group.group] || "customer";
+
+  return `<tr class="detail-row" data-group="${esc(group.group)}"><td colspan="7">
+    <div class="detail-panel">
+      <div class="detail-tabs">
+        <button class="detail-tab ${view === "customer" ? "active" : ""}" data-view="customer" type="button">Customer / Account (${group.customers.length})</button>
+        <button class="detail-tab ${view === "promo" ? "active" : ""}" data-view="promo" type="button">Promo Terkait (${group.promos.length})</button>
+      </div>
+      <div class="detail-view ${view === "customer" ? "" : "hidden"}" data-view="customer">
+        <table class="detail-table">
+          <thead><tr><th>Customer Name</th><th>Region</th><th class="num">Avg 2026</th><th class="num">Avg L3M</th><th class="num">Omzet Nov</th><th class="num">%</th></tr></thead>
+          <tbody>${customers}</tbody>
+        </table>
+        ${multiRegionNote}
+      </div>
+      <div class="detail-view ${view === "promo" ? "" : "hidden"}" data-view="promo">
+        <div class="promo-list">${promoItems}</div>
+      </div>
+    </div>
+  </td></tr>`;
+}
+
+function renderTable(groups) {
+  const body = $("groupTableBody");
+  if (!groups.length) {
+    body.innerHTML = '<tr><td colspan="7" class="empty-state">Tidak ada Customer Group yang sesuai filter.</td></tr>';
+    updateSortButtons();
+    return;
+  }
+
+  body.innerHTML = groups
+    .map((group) => {
+      const expanded = state.expanded.has(group.group);
+      const regionLabel =
+        group.regions.length === 1
+          ? group.regions[0]
+          : `${group.regions[0]} +${group.regions.length - 1}`;
+      return `<tr class="group-row ${expanded ? "expanded" : ""}" data-group="${esc(group.group)}">
+        <td>
+          <div class="group-name">
+            <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+            <span>${esc(group.group)}</span>
+          </div>
+        </td>
+        <td><span class="region-pill ${group.regions.length > 1 ? "multi" : ""}">${esc(regionLabel)}</span></td>
+        <td class="num">${money(group.avg2026)}</td>
+        <td class="num">${money(group.l3m)}</td>
+        <td class="num">${money(group.nov)}</td>
+        <td class="num"><span class="badge ${group.status}">${percentText(group.ach)}</span></td>
+        <td class="num"><span class="promo-count ${group.promos.length ? "" : "zero"}"><b>${group.promos.length}</b> promo</span></td>
+      </tr>${expanded ? detailRow(group) : ""}`;
+    })
+    .join("");
+  updateSortButtons();
+}
+
+function updateSortButtons() {
+  const [activeKey, activeDirection] = state.sort.split(":");
+  document.querySelectorAll(".sort-btn").forEach((button) => {
+    const key = button.dataset.sort;
+    const active = key === activeKey;
+    const arrow = active ? (activeDirection === "asc" ? "▲" : "▼") : "";
+    button.classList.toggle("active", active);
+    button.innerHTML = `${button.textContent.replace(/\s*[▲▼]$/, "").trim()} <span class="arrow">${arrow}</span>`;
+  });
+}
+
+function renderRegionBars() {
+  const byRegion = new Map();
+  for (const row of state.data.rows) {
+    byRegion.set(row.region, (byRegion.get(row.region) || 0) + row.nov);
+  }
+  const max = Math.max(1, ...byRegion.values());
+
+  $("regionBars").innerHTML = state.data.regions
+    .map((region) => {
+      const value = byRegion.get(region) || 0;
+      const width = Math.max(0, value) / max * 100;
+      return `<div class="region-row ${state.region === region ? "selected" : ""}" data-region="${esc(region)}" title="Klik untuk filter ${esc(region)}">
+        <div class="region-row-top">
+          <span class="region-name">${esc(region)}</span>
+          <span class="region-value">${money(value)}</span>
+        </div>
+        <div class="region-track"><div class="region-fill" style="width:${width}%"></div></div>
+      </div>`;
+    })
+    .join("");
+}
+
+function visiblePromos() {
+  return state.data.promos.filter(
+    (promo) =>
+      state.region === "ALL" ||
+      promo.groups.some((link) => link.regions.includes(state.region))
+  );
+}
+
+function renderPromoCard() {
+  const promos = visiblePromos();
+  $("promoTotal").textContent = promos.length;
+
+  const counts = new Map();
+  for (const promo of promos) {
+    for (const link of promo.groups) {
+      if (state.region !== "ALL" && !link.regions.includes(state.region)) continue;
+      counts.set(link.group, (counts.get(link.group) || 0) + 1);
+    }
+  }
+  const top = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const max = Math.max(1, ...top.map((entry) => entry[1]));
+
+  $("promoTop").innerHTML = top.length
+    ? top
+        .map(
+          ([name, count]) => `<div class="promo-top-row">
+            <span class="promo-top-name" title="${esc(name)}">${esc(name)}</span>
+            <span class="promo-top-count">${count} promo</span>
+            <div class="promo-top-track"><div class="promo-top-fill" style="width:${count / max * 100}%"></div></div>
+          </div>`
+        )
+        .join("")
+    : '<div class="detail-note">Belum ada promo terpetakan pada filter ini.</div>';
+}
+
+function renderChart(groups) {
+  const metric = state.chartMetric;
+  const top = groups
+    .slice()
+    .sort((a, b) => {
+      const left = metric === "ach" ? (a.ach ?? -Infinity) : a[metric];
+      const right = metric === "ach" ? (b.ach ?? -Infinity) : b[metric];
+      return right - left;
+    })
+    .slice(0, 10);
+
+  if (!top.length) {
+    $("chartRows").innerHTML = '<div class="promo-empty">Tidak ada data untuk ditampilkan.</div>';
+    return;
+  }
+
+  const max = Math.max(1, ...top.flatMap((group) => [group.l3m, group.nov]));
+  $("chartRows").innerHTML = top
+    .map((group) => {
+      const baseWidth = Math.max(0, group.l3m) / max * 100;
+      const novWidth = Math.max(0, group.nov) / max * 100;
+      return `<div class="chart-row">
+        <div class="chart-label" title="${esc(group.group)}">${esc(group.group)}</div>
+        <div class="chart-bars">
+          <div class="chart-bar-wrap"><div class="chart-bar base" style="width:${baseWidth}%"></div></div>
+          <div class="chart-bar-wrap"><div class="chart-bar nov" style="width:${novWidth}%"></div></div>
+        </div>
+        <div class="chart-ach ${group.status}">${percentText(group.ach)}</div>
+      </div>`;
+    })
+    .join("");
+}
+
+function renderAll() {
+  if (!state.data) return;
+  const groups = currentGroups();
+  renderKPIs(groups);
+  renderFilterMeta(groups);
+  renderTable(groups);
+  renderRegionBars();
+  renderPromoCard();
+  renderChart(groups);
+}
+
+/* -------------------------------------------------------------------------
+   Promo modal
+   ------------------------------------------------------------------------- */
+function promoItemsForModal() {
+  const mapped = state.data.promos.map((promo) => ({ ...promo, unmatched: false }));
+  const unmatched = state.data.unmatched_promos.map((promo) => ({
+    ...promo, groups: [], unmatched: true,
+  }));
+  return mapped.concat(unmatched).filter((promo) => {
+    if (state.region === "ALL") return true;
+    if (promo.unmatched) return false;
+    return promo.groups.some((link) => link.regions.includes(state.region));
+  });
+}
+
+function renderPromoModal() {
+  const query = $("promoSearch").value.trim().toLowerCase();
+  const items = promoItemsForModal().filter((promo) => {
+    if (!query) return true;
+    return (
+      promo.name.toLowerCase().includes(query) ||
+      promo.key.toLowerCase().includes(query) ||
+      promo.groups.some((link) => link.group.toLowerCase().includes(query))
+    );
+  });
+
+  $("promoModalMeta").textContent =
+    `${items.length} promo · ${state.region === "ALL" ? "Semua Region" : state.region}`;
+
+  if (!items.length) {
+    $("promoList").innerHTML = '<div class="promo-empty">Tidak ada promo yang cocok.</div>';
+    return;
+  }
+
+  $("promoList").innerHTML = `<table class="promo-table">
+    <thead><tr><th>Customer / Group</th><th>Nama Promo</th><th>Region</th></tr></thead>
+    <tbody>${items
+      .map((promo) => {
+        const keys = promo.groups.length
+          ? promo.groups.map((link) => link.group).join(", ")
+          : promo.key;
+        const regions = promo.groups
+          .flatMap((link) => link.regions)
+          .filter((value, index, array) => array.indexOf(value) === index)
+          .join(", ");
+        return `<tr>
+          <td class="promo-key-cell">${esc(keys)}</td>
+          <td class="promo-name-cell">${esc(promo.name)}</td>
+          <td class="promo-region-cell">${esc(regions || "—")}</td>
+        </tr>`;
+      })
+      .join("")}</tbody>
+  </table>`;
+}
+
+function openPromoModal() {
+  $("promoModal").classList.remove("hidden");
+  renderPromoModal();
+  $("promoSearch").focus();
+}
+function closePromoModal() {
+  $("promoModal").classList.add("hidden");
+}
+
+/* -------------------------------------------------------------------------
+   Data loading
+   ------------------------------------------------------------------------- */
+function showAlert(message, kind = "warning") {
+  $("alertBox").textContent = message;
+  $("alertBox").className = `alert ${kind === "error" ? "error" : ""}`;
+}
+function hideAlert() {
+  $("alertBox").className = "alert hidden";
+  $("alertBox").textContent = "";
+}
+
+const SHEET_ID = "19bQceNYFkkqvfdzbSAtFk78jrul-5H4Zim4DDFWHkCo";
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+const REGION_ORDER = ["JABODETABEK", "JAWA BARAT", "JAWA TENGAH", "JAWA TIMUR", "BALI"];
+const gvizCache = {};
+
+function normalizeText(value) {
+  return String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+function cellValue(cell) {
+  return cell && cell.v !== null && cell.v !== undefined ? cell.v : "";
+}
+function parseNum(value) {
+  const cleaned = String(value).replace(/[^0-9.\-]/g, "");
+  const parsed = parseFloat(cleaned);
+  return isNaN(parsed) ? 0 : parsed;
+}
+
+/* Google Sheets gviz mengembalikan JS callback, jadi bisa dipanggil lintas origin
+   lewat tag <script> tanpa kena CORS. Request dijalankan berurutan karena nama
+   callback-nya tetap google.visualization.Query.setResponse. */
+function fetchGViz(sheet, range) {
+  return new Promise((resolve, reject) => {
+    let script = null;
+    const timer = setTimeout(() => {
+      if (script) script.remove();
+      reject(new Error("Timeout menghubungi Google Sheets"));
+    }, 20000);
+
+    window.google = window.google || {};
+    window.google.visualization = window.google.visualization || {};
+    window.google.visualization.Query = window.google.visualization.Query || {};
+    window.google.visualization.Query.setResponse = (response) => {
+      clearTimeout(timer);
+      if (script) script.remove();
+      window.google.visualization.Query.setResponse = () => {};
+      if (response.status !== "ok") {
+        const message = response.errors && response.errors[0] && response.errors[0].message;
+        reject(new Error(message || "Gagal membaca sheet Google"));
+        return;
+      }
+      resolve(response.table);
+    };
+
+    script = document.createElement("script");
+    const params = new URLSearchParams({ tqx: "out:json", sheet: sheet, range: range });
+    script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?${params.toString()}`;
+    script.onerror = () => {
+      clearTimeout(timer);
+      if (script) script.remove();
+      reject(new Error("Gagal memuat data dari Google Sheets"));
+    };
+    document.head.appendChild(script);
+  });
+}
+
+async function cachedGViz(key, sheet, range, ttl) {
+  const hit = gvizCache[key];
+  if (hit && Date.now() - hit.ts < ttl) return hit.table;
+  const table = await fetchGViz(sheet, range);
+  gvizCache[key] = { table, ts: Date.now() };
+  return table;
+}
+
+function buildPayload(mt, promo, date) {
+  const labels = mt.cols.map((col) => String(col.label || "").trim().toLowerCase());
+  const at = (name) => labels.indexOf(name.toLowerCase());
+  const iCode = at("Customer Code");
+  const iGroup = at("Customer Group");
+  const iCustomer = at("Customer Name");
+  const iRegion = at("REGION");
+  const iAvg = at("Average 2026");
+  const iL3m = at("Average L3M");
+  const iNov = at("Omzet November 2026");
+
+  if ([iCode, iGroup, iCustomer, iRegion, iAvg, iL3m, iNov].some((i) => i < 0)) {
+    throw new Error("Header sheet Monitoring MT berubah, cek kembali kolomnya");
+  }
+
+  const rows = mt.rows
+    .map((row) => {
+      const c = row.c || [];
+      return {
+        code: String(cellValue(c[iCode])).trim(),
+        group: String(cellValue(c[iGroup])).trim(),
+        customer: String(cellValue(c[iCustomer])).trim(),
+        region: String(cellValue(c[iRegion])).trim().toUpperCase() || "LAINNYA",
+        avg2026: parseNum(cellValue(c[iAvg])),
+        l3m: parseNum(cellValue(c[iL3m])),
+        nov: parseNum(cellValue(c[iNov])),
+      };
+    })
+    .filter((row) => row.code && row.group && normalizeText(row.group) !== "grandtotal");
+
+  if (!rows.length) throw new Error("Tidak ada data customer di Monitoring MT");
+
+  const groupRegions = {};
+  const customerGroups = {};
+  rows.forEach((row) => {
+    if (!groupRegions[row.group]) groupRegions[row.group] = new Set();
+    groupRegions[row.group].add(row.region);
+    const key = normalizeText(row.customer);
+    if (!customerGroups[key]) customerGroups[key] = {};
+    if (!customerGroups[key][row.group]) customerGroups[key][row.group] = new Set();
+    customerGroups[key][row.group].add(row.region);
+  });
+
+  const promoRows = promo.rows
+    .map((row) => ({
+      key: String(cellValue(row.c && row.c[1])).trim(),
+      name: String(cellValue(row.c && row.c[2])).trim(),
+    }))
+    .filter((row) => row.key && row.name && normalizeText(row.name) !== "promoname");
+
+  const promos = [];
+  const unmatched = [];
+  promoRows.forEach((row) => {
+    const key = normalizeText(row.key);
+    const matched = {};
+    Object.keys(groupRegions).forEach((group) => {
+      if (normalizeText(group) === key) {
+        if (!matched[group]) matched[group] = new Set();
+        groupRegions[group].forEach((region) => matched[group].add(region));
+      }
+    });
+    const byCustomer = customerGroups[key] || {};
+    Object.keys(byCustomer).forEach((group) => {
+      if (!matched[group]) matched[group] = new Set();
+      byCustomer[group].forEach((region) => matched[group].add(region));
+    });
+
+    const entry = {
+      key: row.key,
+      name: row.name,
+      groups: Object.keys(matched)
+        .sort()
+        .map((group) => ({ group, regions: Array.from(matched[group]).sort() })),
+    };
+    (entry.groups.length ? promos : unmatched).push(entry);
+  });
+
+  const dateCell = date.rows && date.rows[0] && date.rows[0].c && date.rows[0].c[1];
+  const rawDate = String(cellValue(dateCell));
+  const parts = rawDate.match(/Date\((\d+),(\d+),(\d+)\)/);
+  const sourceDate = parts
+    ? `${String(Number(parts[3])).padStart(2, "0")} ${MONTHS[Number(parts[2])] || ""} ${parts[1]}`.trim()
+    : dateCell && dateCell.f
+      ? `${dateCell.f} ${new Date().getFullYear()}`
+      : new Date().toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+
+  const regions = Array.from(new Set(rows.map((row) => row.region))).sort((a, b) => {
+    const ia = REGION_ORDER.indexOf(a);
+    const ib = REGION_ORDER.indexOf(b);
+    if (ia >= 0 && ib >= 0) return ia - ib;
+    if (ia >= 0) return -1;
+    if (ib >= 0) return 1;
+    return a.localeCompare(b);
+  });
+
+  return {
+    ok: true,
+    fetched_at: new Date().toISOString(),
+    source_date: sourceDate,
+    regions,
+    rows,
+    promos,
+    unmatched_promos: unmatched,
+    meta: {
+      row_count: rows.length,
+      promo_count: promos.length + unmatched.length,
+      mapped_promo_count: promos.length,
+      header_source: "gviz JSONP",
+    },
+    stale: false,
+  };
+}
+
+async function loadData(force = false) {
+  if (state.loading) return;
+  state.loading = true;
+  const button = $("refreshBtn");
+  const tableScroll = document.querySelector(".table-wrap")?.scrollTop || 0;
+  button.disabled = true;
+  button.classList.add("is-loading");
+
+  try {
+    if (force) Object.keys(gvizCache).forEach((key) => delete gvizCache[key]);
+    const mt = await cachedGViz("mt", "Monitoring MT", "A3:H", 0);
+    const promo = await cachedGViz("promo", "Promo", "A1:C", 5 * 60 * 1000);
+    const date = await cachedGViz("date", "Monitoring MT", "B1:C1", 60 * 60 * 1000);
+    const payload = buildPayload(mt, promo, date);
+
+    state.data = payload;
+    if (force) state.expanded.clear();
+
+    const regionSelect = $("regionFilter");
+    regionSelect.innerHTML =
+      '<option value="ALL">Semua Region</option>' +
+      payload.regions.map((region) => `<option value="${esc(region)}">${esc(region)}</option>`).join("");
+    regionSelect.value = state.region;
+
+    $("sourceDate").textContent = payload.source_date;
+    $("fetchedAt").textContent = `Diambil ${timeFormatter.format(new Date(payload.fetched_at))}`;
+    renderAll();
+    const tableWrap = document.querySelector(".table-wrap");
+    if (tableWrap) tableWrap.scrollTop = tableScroll;
+    hideAlert();
+  } catch (error) {
+    showAlert(
+      state.data
+        ? `Gagal memuat data terbaru: ${error.message}. Data sebelumnya tetap ditampilkan.`
+        : `Gagal memuat data: ${error.message}. Pastikan Google Sheets bisa diakses lewat link dan browser terhubung internet.`,
+      "error"
+    );
+    if (!state.data) {
+      $("groupTableBody").innerHTML = '<tr><td colspan="7" class="empty-state">Data belum tersedia.</td></tr>';
+    }
+  } finally {
+    state.loading = false;
+    button.disabled = false;
+    button.classList.remove("is-loading");
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Events
+   ------------------------------------------------------------------------- */
+function bindEvents() {
+  $("refreshBtn").addEventListener("click", () => loadData(true));
+
+  $("regionFilter").addEventListener("change", (event) => {
+    state.region = event.target.value;
+    state.expanded.clear();
+    renderAll();
+  });
+  $("statusFilter").addEventListener("change", (event) => {
+    state.status = event.target.value;
+    renderAll();
+  });
+  $("searchInput").addEventListener("input", (event) => {
+    state.search = event.target.value;
+    renderAll();
+  });
+  $("sortSelect").addEventListener("change", (event) => {
+    state.sort = event.target.value;
+    renderAll();
+  });
+  $("chartMetric").addEventListener("change", (event) => {
+    state.chartMetric = event.target.value;
+    renderChart(currentGroups());
+  });
+  $("resetBtn").addEventListener("click", () => {
+    state.region = "ALL";
+    state.status = "ALL";
+    state.search = "";
+    state.sort = "nov:desc";
+    state.expanded.clear();
+    $("regionFilter").value = "ALL";
+    $("statusFilter").value = "ALL";
+    $("searchInput").value = "";
+    $("sortSelect").value = "nov:desc";
+    renderAll();
+  });
+
+  $("groupTableBody").addEventListener("click", (event) => {
+    const tab = event.target.closest(".detail-tab");
+    if (tab) {
+      const detail = tab.closest(".detail-row");
+      if (!detail) return;
+      const group = detail.dataset.group;
+      const view = tab.dataset.view;
+      state.detailViews[group] = view;
+      detail.querySelectorAll(".detail-tab").forEach((button) => {
+        button.classList.toggle("active", button.dataset.view === view);
+      });
+      detail.querySelectorAll(".detail-view").forEach((panel) => {
+        panel.classList.toggle("hidden", panel.dataset.view !== view);
+      });
+      return;
+    }
+
+    const row = event.target.closest(".group-row");
+    if (!row) return;
+    const group = row.dataset.group;
+    if (state.expanded.has(group)) state.expanded.delete(group);
+    else state.expanded.add(group);
+    renderTable(currentGroups());
+  });
+
+  document.querySelector(".data-table thead").addEventListener("click", (event) => {
+    const button = event.target.closest(".sort-btn");
+    if (!button) return;
+    const key = button.dataset.sort;
+    const [currentKey, currentDirection] = state.sort.split(":");
+    const direction = currentKey === key && currentDirection === "desc" ? "asc" : "desc";
+    state.sort = `${key}:${direction}`;
+    const select = $("sortSelect");
+    if (Array.from(select.options).some((option) => option.value === state.sort)) {
+      select.value = state.sort;
+    }
+    renderAll();
+  });
+
+  $("regionBars").addEventListener("click", (event) => {
+    const row = event.target.closest(".region-row");
+    if (!row) return;
+    state.region = state.region === row.dataset.region ? "ALL" : row.dataset.region;
+    $("regionFilter").value = state.region;
+    state.expanded.clear();
+    renderAll();
+  });
+
+  $("openPromoBtn").addEventListener("click", openPromoModal);
+  $("closePromoBtn").addEventListener("click", closePromoModal);
+  document.querySelector("[data-close-modal]").addEventListener("click", closePromoModal);
+  $("promoSearch").addEventListener("input", renderPromoModal);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !$("promoModal").classList.contains("hidden")) closePromoModal();
+  });
+}
+
+bindEvents();
+loadData();
+// Live update: ambil data terbaru tiap 30 detik (server cache maks. 15 detik).
+setInterval(() => loadData(false), 30 * 1000);
+
+</script>
+</body>
+</html>
